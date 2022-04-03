@@ -1,0 +1,28 @@
+{
+  "cookiecutter": {
+    "include_sphinx_doc": "y",
+    "project_slug": "django-tortoise",
+    "project_url": "https://github.com/KhDenys/django-tortoise",
+    "app_config_name": "DjangoTortoiseConfig",
+    "pypi_username": "KhDenys",
+    "open_source_license": "GNU General Public License v3",
+    "run_tests_on_init": "y",
+    "use_travis_ci": "n",
+    "project_name": "django-tortoise",
+    "package_name": "django_tortoise",
+    "copyright": "Denys Kharyna",
+    "sphinx_theme": "sphinx-py3doc-enhanced-theme",
+    "full_name": "Denys Kharyna",
+    "use_read_the_docs": "y",
+    "repo_domain": "github.com",
+    "create_example_project": "N",
+    "repo_username": "KhDenys",
+    "project_short_description": "integration of tortoise orm in django",
+    "email": "khd01214@outlook.com",
+    "create_virtual_environment": "n",
+    "version": "0.1.0",
+    "create_author_file": "y",
+    "git_init": "y",
+    "repo_url": "git@github.com:KhDenys/django-tortoise.git"
+  }
+}
