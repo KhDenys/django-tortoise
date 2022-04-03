@@ -6,11 +6,9 @@
 import os
 import re
 import sys
-import uuid
 from glob import glob
 from os.path import basename, splitext
 
-from pip.req import parse_requirements
 
 try:
     from setuptools import setup, find_packages
@@ -24,13 +22,8 @@ with open('HISTORY.rst') as history_file:
     history = history_file.read().replace('.. :changelog:', '')
 
 
-def requirements(path):
-    items = parse_requirements(path, session=uuid.uuid1())
-    return [";".join((str(r.req), str(r.markers))) if r.markers else str(r.req) for r in items]
-
-
-tests_require = requirements(os.path.join(os.path.dirname(__file__), "requirements", "testing.txt"))
-install_requires = requirements(os.path.join(os.path.dirname(__file__), "requirements", "production.txt"))
+tests_require = []
+install_requires = []
 
 
 def get_version(*file_paths):

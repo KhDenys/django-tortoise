@@ -1,5 +1,3 @@
-# -*- coding: utf-8 -*-
-
 """Console script for django-tortoise."""
 
 import click

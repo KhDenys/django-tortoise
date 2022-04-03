@@ -1,4 +1,3 @@
-# coding=utf-8
 """Top-level package for django-tortoise."""
 
 __author__ = """Denys Kharyna"""
