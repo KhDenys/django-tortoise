@@ -1,1 +1,4 @@
-
+click>=8.1.2
+Django>=3.2
+setuptools>=61.3.1
+tortoise-orm>=0.19.0
