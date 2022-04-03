@@ -1,0 +1,3 @@
+# A list of optional libraries needed for plugins
+# These should be included in testing
+factory-boy

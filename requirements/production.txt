@@ -1,0 +1,9 @@
+# This should not differ much from base requirements
+-r base.txt
+
+# In rare cases you can have special requirements that are only needed in
+# production and not in development, eg. binary versions for windows development.
+# Preferably you can obtain the same result using environment markers
+# https://pip.pypa.io/en/stable/reference/pip_install/#requirement-specifiers
+
+

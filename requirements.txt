@@ -1,0 +1,2 @@
+# This is here until pip-compile will freeze and generate proper requirements.txt
+-r requirements.in

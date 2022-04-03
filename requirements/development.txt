@@ -1,0 +1,21 @@
+# All base dependencies
+# Pipenv will not ignore dev dependencies matching production
+# https://github.com/pypa/pipenv/issues/1255
+# -r base.txt
+
+# For local development we ween all there is in testing
+-r testing.txt
+
+# We want to install (not modifiy PYTHONPATH) local package in editable mode
+# pipenv has issues with such installation, we will have to perform it manually
+# https://github.com/kennethreitz/pipenv/issues/540
+-e .
+
+
+# Tooling
+-r tooling.txt
+
+# Documentation
+-r ../docs/requirements.txt
+
+

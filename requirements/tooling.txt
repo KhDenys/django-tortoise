@@ -1,0 +1,15 @@
+# These are tools that don't necessarily have to be installed alongside the app
+# in it's virtual environment but are needed as executables on path.
+# They are here to ease environment preparation eg. in travis.yml.
+bump2version
+check-manifest
+codecov
+coverage
+detox
+flake8
+isort
+pygments
+readme-renderer
+setuptools
+tox
+wheel

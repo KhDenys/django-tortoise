@@ -1,0 +1,97 @@
+language: python
+sudo: false
+
+python:
+    - "3.6"
+    - "3.5"
+    - "3.4"
+    - "2.7"
+
+env:
+    - DJANGO=1.8
+    - DJANGO=1.9
+    - DJANGO=1.10
+    - DJANGO=1.11
+    - DJANGO=2.0
+    # - DJANGO=2.1
+    - DJANGO=master
+
+matrix:
+    fast_finish: true
+    include:
+      - { python: "3.3", env: TOXENV=py33-django-18 }
+      - { python: "3.7", env: TOXENV=py37-django-21 }
+      - { python: "3.5", env: TOXENV=check }
+      - { python: "3.5", env: TOXENV=docs }
+
+    exclude:
+      # Django support for different python versions reference
+      # https://docs.djangoproject.com/en/dev/faq/install/#faq-python-version-support
+      - { python: "2.7", env: DJANGO=2.0 }
+      - { python: "2.7", env: DJANGO=2.1 }
+      - { python: "2.7", env: DJANGO=master }
+      - { python: "3.4", env: DJANGO=2.1 }
+      - { python: "3.4", env: DJANGO=master }
+      - { python: "3.6", env: DJANGO=1.8 }
+      - { python: "3.6", env: DJANGO=1.9 }
+      - { python: "3.6", env: DJANGO=1.10 }
+
+    allow_failures:
+      - python: "3.4"
+      - python: "2.7"
+      - env: DJANGO=1.8
+      - env: DJANGO=1.9
+      - env: DJANGO=1.10
+      - env: DJANGO=2.1
+      - env: DJANGO=master
+
+before_install:
+  - python --version
+  - uname -a
+  - lsb_release -a
+  - sudo apt-get install -y git-flow python-enchant
+
+install:
+  - pip install -r requirements/development.txt coveralls tox-travis
+  - pip install .
+  - virtualenv --version
+  - easy_install --version
+  - pip --version
+  - tox --version
+  - git --version
+
+script:
+  - tox
+
+jobs:
+  include:
+    - stage: make
+      python: "3.5"
+      script:
+          - which python
+          - tox --version
+          - pwd
+          - ls -la
+          - make
+          - make bump
+          - make lint
+          - make test
+          - make tox
+          - make detox
+          - make coverage
+          - make dist
+          - make install
+          - make docs
+          # Lint again after docs generation
+          - make lint
+          - make clean
+
+after_success:
+  - bash <(curl -s https://codecov.io/bash)
+  - codecov -e TOXENV,DJANGO
+  - coveralls
+
+notifications:
+  email:
+    on_success: never
+    on_failure: always
