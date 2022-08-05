@@ -10,7 +10,7 @@ https://docs.djangoproject.com/en/4.0/howto/deployment/asgi/
 import os
 
 from django.core.asgi import get_asgi_application
-from ...src.django_tortoise.asgi import get_boosted_asgi_application
+from django_tortoise.asgi import get_boosted_asgi_application
 
 os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'proj.settings')
 

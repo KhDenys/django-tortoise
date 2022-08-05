@@ -32,12 +32,14 @@ def __get_base_field_kwargs(django_field):
 
 def __get_auto_field(django_field):
     base_kwargs = __get_base_field_kwargs(django_field)
-    return fields.IntField(**base_kwargs, pk=True)
+    base_kwargs.update({'pk': True})
+    return fields.IntField(**base_kwargs)
 
 
 def __get_big_auto_field(django_field):
     base_kwargs = __get_base_field_kwargs(django_field)
-    return fields.BigIntField(**base_kwargs, pk=True)
+    base_kwargs.update({'pk': True})
+    return fields.BigIntField(**base_kwargs)
 
 
 def __get_big_integer_field(django_field):
@@ -186,46 +188,49 @@ ON_DELETE = {
 
 
 def __get_foreign_key_field(django_field):
-    to = django_field.to
+    to = django_field.related_model
     if isinstance(to, str):
         if '.' in to:
             to = to.split('.')[-1]
     else:
         to = to.__name__
 
-    model_name = f'{to}Tortoise'
-    related_name = django_field.related_name
-    on_delete = ON_DELETE[django_field.on_delete]
+    model_name = f'django_tortoise.{to}Tortoise'
+    related_name = django_field.remote_field.related_name
+    on_delete = ON_DELETE[django_field.remote_field.on_delete]
+    null = on_delete is fields.SET_NULL
 
-    return fields.ForeignKeyField(model_name=model_name, related_name=related_name, on_delete=on_delete)
+    return fields.ForeignKeyField(model_name=model_name, related_name=related_name, on_delete=on_delete, null=null)
 
 
 def __get_one_to_one_field(django_field):
-    to = django_field.to
+    to = django_field.related_model
     if isinstance(to, str):
         if '.' in to:
             to = to.split('.')[-1]
     else:
         to = to.__name__
 
-    model_name = f'{to}Tortoise'
-    related_name = django_field.related_name
-    on_delete = ON_DELETE[django_field.on_delete]
+    model_name = f'django_tortoise.{to}Tortoise'
+    related_name = django_field.remote_field.related_name
+    on_delete = ON_DELETE[django_field.remote_field.on_delete]
+    null = on_delete is fields.SET_NULL
 
-    return fields.OneToOneField(model_name=model_name, related_name=related_name, on_delete=on_delete)
+    return fields.OneToOneField(model_name=model_name, related_name=related_name, on_delete=on_delete, null=null)
 
 
 def __get_many_to_many_field(django_field):
-    to = django_field.to
+    to = django_field.related_model
     if isinstance(to, str):
         if '.' in to:
             to = to.split('.')[-1]
     else:
         to = to.__name__
 
-    model_name = f'{to}Tortoise'
-    related_name = django_field.related_name
-    on_delete = ON_DELETE[django_field.on_delete]
+    model_name = f'django_tortoise.{to}Tortoise'
+    related_name = django_field.remote_field.related_name
+    on_delete = ON_DELETE[django_field.remote_field.on_delete]
+    null = on_delete is fields.SET_NULL
 
     through = django_field.through
     if isinstance(through, str):
@@ -248,7 +253,8 @@ def __get_many_to_many_field(django_field):
         through=through,
         forward_key=forward_key,
         backward_key=backward_key,
-        on_delete=on_delete
+        on_delete=on_delete,
+        null=null,
     )
 
 

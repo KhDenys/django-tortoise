@@ -1,8 +1,9 @@
+import asyncio
 import signal
-
+import sys
 
 from django.conf import settings
-from tortoise import models, Tortoise, run_async
+from tortoise import models, Tortoise
 
 from .mapping import DJANGO_TORTOISE_FIELD_MAPPING
 
@@ -55,7 +56,11 @@ def get_tortoise_fields(django_model):
     tortoise_fields = {}
     for django_field in django_model._meta.get_fields(include_hidden=False):
         field_type = type(django_field)
-        tortoise_field = DJANGO_TORTOISE_FIELD_MAPPING[field_type](django_field)
+        try:
+            tortoise_field = DJANGO_TORTOISE_FIELD_MAPPING[field_type](django_field)
+        except KeyError:
+            continue
+
         tortoise_fields[django_field.name] = tortoise_field
 
     return tortoise_fields
@@ -81,7 +86,7 @@ def get_tortoise_meta_class(django_model):
 
 
 def tortoise_init():
-    run_async(__init())
+    asyncio.create_task(__init())
     register_tortoise_shutdown()
 
 
@@ -93,7 +98,8 @@ async def __init():
         config={
             'connections': {
                 'default': db_conf
-            }
+            },
+            'apps': {}
         },
         modules={'models': ['django_tortoise.models']}
     )
@@ -129,12 +135,17 @@ def __get_db_conf():
 
 
 def register_tortoise_shutdown():
-    for sig_num in (signal.SIGBREAK, signal.SIGHUP, signal.SIGINT, signal.SIGKILL, signal.SIGSEGV, signal.SIGTERM):
+    if sys.platform == 'win32':
+        signals = (signal.SIGBREAK, signal.SIGHUP, signal.SIGINT, signal.SIGKILL, signal.SIGSEGV, signal.SIGTERM)
+    else:  # sys.platform == 'darwin'
+        signals = (signal.SIGHUP, signal.SIGINT, signal.SIGSEGV, signal.SIGTERM)
+
+    for sig_num in signals:
         signal.signal(sig_num, __shutdown_handler)
 
 
 def __shutdown_handler(signum, frame):
-    run_async(Tortoise.close_connections())
+    asyncio.create_task(Tortoise.close_connections())
 
 
 for model_name, tortoise_model in TORTOISE_MODELS.items():
