@@ -14,8 +14,26 @@ Including another URLconf
     2. Add a URL to urlpatterns:  path('blog/', include('blog.urls'))
 """
 from django.contrib import admin
+from django.contrib.auth.models import User
+from django.http import JsonResponse
 from django.urls import path
+
+
+async def get_users(request):
+    users = await User.abjects.all()
+    users_dict = [
+        {
+            'user': user.username,
+            'is_superuser': user.is_superuser
+        }
+        for user in users
+    ]
+    return JsonResponse({'users': users_dict})
+
 
 urlpatterns = [
     path('admin/', admin.site.urls),
+    path('users/', get_users),
 ]
+
+

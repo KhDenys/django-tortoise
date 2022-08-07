@@ -9,7 +9,7 @@ from .mapping import DJANGO_TORTOISE_FIELD_MAPPING
 
 
 SYMBIOTIC_MODELS = {}
-TORTOISE_MODELS = {}
+__models__ = list()
 
 
 class _SymbioticModel:
@@ -24,8 +24,8 @@ def tortoise_setup(apps):
     for app_models in apps.all_models.values():
         for model_name, django_model in app_models.items():
             tortoise_model = generate_tortoise_model(django_model)
-            TORTOISE_MODELS[model_name] = tortoise_model
-            setattr(django_model, 'abject', tortoise_model)  # the main magic
+            __models__.append(tortoise_model)
+            setattr(django_model, 'abjects', tortoise_model)  # the main magic
 
             SYMBIOTIC_MODELS[model_name] = _SymbioticModel(django_model, tortoise_model)
 
@@ -99,9 +99,13 @@ async def __init():
             'connections': {
                 'default': db_conf
             },
-            'apps': {}
-        },
-        modules={'models': ['django_tortoise.models']}
+            'apps': {
+                'django_tortoise': {
+                    'models': ['django_tortoise.models'],
+                    'default_connection': 'default'
+                }
+            }
+        }
     )
 
 
@@ -146,7 +150,3 @@ def register_tortoise_shutdown():
 
 def __shutdown_handler(signum, frame):
     asyncio.create_task(Tortoise.close_connections())
-
-
-for model_name, tortoise_model in TORTOISE_MODELS.items():
-    locals()[model_name] = tortoise_model
