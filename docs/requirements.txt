@@ -1,6 +1,0 @@
-sphinx>=1.6.5
-sphinx-py3doc-enhanced-theme
-# https://github.com/sphinx-doc/sphinx/issues/3212
-docutils==0.13.1
-sphinxcontrib-spelling
-pyenchant
