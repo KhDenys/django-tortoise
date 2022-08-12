@@ -1,6 +1,6 @@
 import datetime
 
-from django.core.validators import validate_slug, validate_unicode_slug, URLValidator
+from django.core.validators import validate_email, validate_slug, validate_unicode_slug, URLValidator
 from django.utils.dateparse import parse_duration
 from django.utils.ipv6 import clean_ipv6_address
 from tortoise.fields.base import Field
@@ -34,6 +34,13 @@ class DurationField(Field, datetime.timedelta):
         if value is None:
             return None
         return (value.days * 86400000000) + (value.seconds * 1000000) + value.microseconds
+
+
+class EmailField(CharField):
+    def __init__(self, *args, **kwargs):
+        kwargs.setdefault("max_length", 254)
+        super().__init__(*args, **kwargs)
+        self.validators.append(validate_email)
 
 
 class GenericIPAddressField(Field):

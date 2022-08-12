@@ -3,6 +3,7 @@ from tortoise import fields
 
 from .fields import (
     DurationField,
+    EmailField,
     GenericIPAddressField,
     SlugField,
     URLField,
@@ -87,10 +88,9 @@ def __get_duration_field(django_field):
 
 
 def __get_email_field(django_field):
-    # base_kwargs = __get_base_field_kwargs(django_field)
-    # max_length = django_field.max_length
-    # return fields.Email(**base_kwargs,  max_length=max_length)
-    raise NotImplementedError('EmailField is not implemented')
+    base_kwargs = __get_base_field_kwargs(django_field)
+    max_length = django_field.max_length
+    return EmailField(**base_kwargs,  max_length=max_length)
 
 
 def __get_file_field(django_field):
