@@ -17,4 +17,5 @@ from django_tortoise import get_boosted_asgi_application
 
 
 def pytest_sessionstart(session):
+    # monkey patch django orm
     get_boosted_asgi_application(ASGIHandler())

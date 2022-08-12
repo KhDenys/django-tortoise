@@ -7,8 +7,8 @@ from .models import ModelA, ModelARel
 @pytest.mark.django_db
 @pytest.mark.parametrize(
     'model', [
-        (ModelA,),
-        (ModelARel,)
+        ModelA,
+        ModelARel
     ]
 )
 async def test(model):
