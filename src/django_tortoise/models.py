@@ -1,9 +1,8 @@
-import asyncio
 import signal
 import sys
 
 from django.conf import settings
-from tortoise import models, Tortoise
+from tortoise import models, Tortoise, run_async
 
 from .mapping import DJANGO_TORTOISE_FIELD_MAPPING
 
@@ -86,7 +85,7 @@ def get_tortoise_meta_class(django_model):
 
 
 def tortoise_init():
-    asyncio.create_task(__init())
+    run_async(__init())
     register_tortoise_shutdown()
 
 
@@ -149,5 +148,5 @@ def register_tortoise_shutdown():
 
 
 def __shutdown_handler(signum, _):
-    asyncio.create_task(Tortoise.close_connections())
+    run_async(Tortoise.close_connections())
     sys.exit(signum)
