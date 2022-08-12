@@ -1,8 +1,9 @@
+import asyncio
 import signal
 import sys
 
 from django.conf import settings
-from tortoise import models, Tortoise, run_async
+from tortoise import models, Tortoise
 
 from .mapping import DJANGO_TORTOISE_FIELD_MAPPING
 
@@ -150,3 +151,20 @@ def register_tortoise_shutdown():
 def __shutdown_handler(signum, _):
     run_async(Tortoise.close_connections())
     sys.exit(signum)
+
+
+def run_async(coro):
+    try:
+        loop = asyncio.get_running_loop()
+    except RuntimeError:
+        loop = None
+
+    if loop and loop.is_running():
+        print('Async event loop already running. Adding coroutine to the event loop.')
+        tsk = loop.create_task(coro)
+        tsk.add_done_callback(
+            lambda t: print(f'Task done with result={t.result()}  << return val of main()')
+        )
+    else:
+        print('Starting new event loop')
+        asyncio.run(coro)
