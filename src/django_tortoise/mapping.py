@@ -87,9 +87,10 @@ def __get_duration_field(django_field):
 
 
 def __get_email_field(django_field):
-    base_kwargs = __get_base_field_kwargs(django_field)
-    max_length = django_field.max_length
-    return fields.BooleanField(**base_kwargs,  max_length=max_length)
+    # base_kwargs = __get_base_field_kwargs(django_field)
+    # max_length = django_field.max_length
+    # return fields.Email(**base_kwargs,  max_length=max_length)
+    raise NotImplementedError('EmailField is not implemented')
 
 
 def __get_file_field(django_field):
@@ -150,7 +151,8 @@ def __get_slug_field(django_field):
 
 def __get_small_auto_field(django_field):
     base_kwargs = __get_base_field_kwargs(django_field)
-    return fields.SmallIntField(**base_kwargs, pk=True)
+    base_kwargs.update({'pk': True})
+    return fields.SmallIntField(**base_kwargs)
 
 
 def __get_small_integer_field(django_field):

@@ -148,5 +148,6 @@ def register_tortoise_shutdown():
         signal.signal(sig_num, __shutdown_handler)
 
 
-def __shutdown_handler(signum, frame):
+def __shutdown_handler(signum, _):
     asyncio.create_task(Tortoise.close_connections())
+    sys.exit(signum)
