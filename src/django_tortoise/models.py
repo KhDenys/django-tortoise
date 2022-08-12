@@ -139,16 +139,15 @@ def __get_db_conf():
 
 
 def register_tortoise_shutdown():
-    if sys.platform == 'win32':
-        signals = (signal.SIGBREAK, signal.SIGHUP, signal.SIGINT, signal.SIGKILL, signal.SIGSEGV, signal.SIGTERM)
-    else:  # sys.platform == 'darwin'
-        signals = (signal.SIGHUP, signal.SIGINT, signal.SIGSEGV, signal.SIGTERM)
+    for signame in [x for x in dir(signal) if x.startswith("SIG")]:
+        try:
+            signum = getattr(signal, signame)
+            signal.signal(signum, __shutdown_handler)
+        except (OSError, RuntimeError, ValueError):
+            pass
 
-    for sig_num in signals:
-        signal.signal(sig_num, __shutdown_handler)
 
-
-def __shutdown_handler(signum, _):
+def __shutdown_handler(signum, frame):
     run_async(Tortoise.close_connections())
     sys.exit(signum)
 
@@ -160,11 +159,6 @@ def run_async(coro):
         loop = None
 
     if loop and loop.is_running():
-        print('Async event loop already running. Adding coroutine to the event loop.')
-        tsk = loop.create_task(coro)
-        tsk.add_done_callback(
-            lambda t: print(f'Task done with result={t.result()}  << return val of main()')
-        )
+        loop.create_task(coro)
     else:
-        print('Starting new event loop')
         asyncio.run(coro)
