@@ -2,6 +2,7 @@ import datetime
 
 from django.core.validators import validate_email, validate_slug, validate_unicode_slug, URLValidator
 from django.utils.dateparse import parse_duration
+from django.utils.duration import duration_microseconds
 from django.utils.ipv6 import clean_ipv6_address
 from tortoise.fields.base import Field
 from tortoise.fields.data import CharField
@@ -16,10 +17,11 @@ class DurationField(Field, datetime.timedelta):
         SQL_TYPE = 'BIGINT'
 
     def to_python_value(self, value):
-        if value is None:
+        if value is None or isinstance(value, datetime.timedelta):
             return value
-        if isinstance(value, datetime.timedelta):
-            return value
+        elif isinstance(value, int):
+            return datetime.timedelta(microseconds=value)
+
         try:
             parsed = parse_duration(value)
         except ValueError:
@@ -33,7 +35,7 @@ class DurationField(Field, datetime.timedelta):
 
         if value is None:
             return None
-        return (value.days * 86400000000) + (value.seconds * 1000000) + value.microseconds
+        return duration_microseconds(value)
 
 
 class EmailField(CharField):

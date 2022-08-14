@@ -124,7 +124,11 @@ def __get_integer_field(django_field):
 def __get_json_field(django_field):
     base_kwargs = __get_base_field_kwargs(django_field)
     encoder, decoder = django_field.encoder, django_field.decoder
-    return fields.JSONField(**base_kwargs, encoder=encoder, decoder=decoder)
+    if encoder:
+        base_kwargs['encoder'] = encoder
+    if decoder:
+        base_kwargs['decoder'] = decoder
+    return fields.JSONField(**base_kwargs)
 
 
 def __get_positive_big_integer_field(django_field):

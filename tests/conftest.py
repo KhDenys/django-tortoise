@@ -1,9 +1,14 @@
+import datetime
 import importlib.util
+import json
 import sys
+import uuid
 
 import pytest
 
 from pathlib import Path
+
+from faker import Faker
 
 from django.conf import settings
 from django.core.handlers.asgi import ASGIHandler
@@ -19,6 +24,11 @@ spec.loader.exec_module(module)
 from django_tortoise import get_boosted_asgi_application
 
 
+def pytest_sessionstart(session):
+    # monkey patch django orm
+    get_boosted_asgi_application(ASGIHandler())
+
+
 @pytest.fixture(scope='session')
 def django_db_setup():
     settings.DATABASES['default'] = {
@@ -27,6 +37,26 @@ def django_db_setup():
     }
 
 
-def pytest_sessionstart(session):
-    # monkey patch django orm
-    get_boosted_asgi_application(ASGIHandler())
+@pytest.fixture(scope='session')
+def generate_a_as_dict():
+    fake = Faker()
+
+    return lambda: {
+        'binary': fake.pystr().encode(),
+        'boolean': fake.pybool(),
+        'char': fake.pystr(),
+        'decimal': fake.pydecimal(left_digits=2, right_digits=8),
+        'duration': datetime.timedelta(minutes=fake.pyint(max_value=2147483647)),
+        'float': fake.pyfloat(),
+        'ip': fake.ipv4(),
+        'integer': fake.pyint(min_value=-9223372036854775808, max_value=9223372036854775807),
+        'small_int': fake.pyint(min_value=-32768, max_value=32767),
+        'json': json.loads(fake.json(data_columns=[('Name', 'name'), ('Points', 'pyint', {'min_value':50, 'max_value':100})], num_rows=1)),
+        'positive_big_int': fake.pyint(max_value=9223372036854775807),
+        'positive_int':  fake.pyint(max_value=2147483647),
+        'positive_small_int':  fake.pyint(max_value=32767),
+        'slug': fake.slug(),
+        'text': fake.pystr(min_chars=20, max_chars=1_000_000),
+        'url': fake.url(),
+        'uuid': uuid.uuid4(),
+    }
