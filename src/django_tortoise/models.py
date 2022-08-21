@@ -105,7 +105,9 @@ async def __init():
                     'default_connection': 'default'
                 }
             }
-        }
+        },
+        use_tz=settings.USE_TZ,
+        timezone=settings.TIME_ZONE
     )
 
 

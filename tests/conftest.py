@@ -56,7 +56,7 @@ def generate_a_as_dict():
         'positive_int':  fake.pyint(max_value=2147483647),
         'positive_small_int':  fake.pyint(max_value=32767),
         'slug': fake.slug(),
-        'text': fake.pystr(min_chars=20, max_chars=1_000_000),
+        'text': fake.pystr(min_chars=20, max_chars=1_000),
         'url': fake.url(),
         'uuid': uuid.uuid4(),
     }

@@ -2,6 +2,8 @@ from django.db import models
 from tortoise import fields
 
 from .fields import (
+    DateField,
+    DateTimeField,
     DurationField,
     EmailField,
     GenericIPAddressField,
@@ -25,10 +27,17 @@ BASE_KWARGS = {
 
 
 def __get_base_field_kwargs(django_field):
-    return {
+    base_kwargs = {
         tortoise_option: getattr(django_field, django_option, None)
         for django_option, tortoise_option in BASE_KWARGS.items()
     }
+
+    base_kwargs['default'] = (
+        base_kwargs['default']
+        if base_kwargs['default'] is not models.NOT_PROVIDED
+        else None)
+
+    return base_kwargs
 
 
 def __get_auto_field(django_field):
@@ -67,13 +76,13 @@ def __get_char_field(django_field):
 def __get_date_field(django_field):
     base_kwargs = __get_base_field_kwargs(django_field)
     auto_now, auto_now_add = django_field.auto_now, django_field.auto_now_add
-    return fields.DateField(**base_kwargs, auto_now=auto_now, auto_now_add=auto_now_add)
+    return DateField(**base_kwargs, auto_now=auto_now, auto_now_add=auto_now_add)
 
 
 def __get_date_time_field(django_field):
     base_kwargs = __get_base_field_kwargs(django_field)
     auto_now, auto_now_add = django_field.auto_now, django_field.auto_now_add
-    return fields.DatetimeField(**base_kwargs, auto_now=auto_now, auto_now_add=auto_now_add)
+    return DateTimeField(**base_kwargs, auto_now=auto_now, auto_now_add=auto_now_add)
 
 
 def __get_decimal_field(django_field):
