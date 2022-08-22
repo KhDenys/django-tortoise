@@ -1,6 +1,5 @@
 import pytest
 
-from django.conf import settings
 from django.contrib.admin.models import LogEntry
 from django.contrib.auth.models import Group, Permission, User
 from django.contrib.contenttypes.models import ContentType
@@ -8,7 +7,7 @@ from django.contrib.sessions.models import Session
 from django.test import override_settings
 
 from .models import ModelA, ModelARel
-from .serializers import serialize_model_a
+from .serializers import serialize_model_a, serialize_model_a_rel
 
 
 @pytest.mark.parametrize(
@@ -44,7 +43,7 @@ async def test_user_count(use_tz):
 )
 @pytest.mark.django_db
 @pytest.mark.asyncio
-async def test_creat_through_django(generate_a_as_dict, use_tz):
+async def test_model_a_creat_through_django(generate_a_as_dict, use_tz):
     with override_settings(USE_TZ=use_tz):
         a_dict = generate_a_as_dict()
 
@@ -63,7 +62,7 @@ async def test_creat_through_django(generate_a_as_dict, use_tz):
 )
 @pytest.mark.django_db
 @pytest.mark.asyncio
-async def test_creat_through_tortoise(generate_a_as_dict, use_tz):
+async def test_model_a_creat_through_tortoise(generate_a_as_dict, use_tz):
     with override_settings(USE_TZ=use_tz):
         a_dict = generate_a_as_dict()
 
@@ -75,3 +74,61 @@ async def test_creat_through_tortoise(generate_a_as_dict, use_tz):
         a_dict_tortoise = serialize_model_a(instance_a_tortoise)
 
         assert a_dict_django == a_dict_tortoise
+
+
+@pytest.mark.parametrize(
+    'use_tz', [False, True]
+)
+@pytest.mark.django_db
+@pytest.mark.asyncio
+async def test_model_b_creat_through_django(generate_a_as_dict, use_tz):
+    with override_settings(USE_TZ=use_tz):
+        instance_a_rel = ModelARel.objects.create(
+            one=ModelA.objects.create(**generate_a_as_dict()),
+            foreign=ModelA.objects.create(**generate_a_as_dict())
+        )
+        instance_a_rel.many.add(ModelA.objects.create(**generate_a_as_dict()))
+
+        instance_a_rel_django = ModelARel.objects.get(id=instance_a_rel.id)
+        instance_a_rel_tortoise = await ModelARel.abjects.filter(
+            id=instance_a_rel.id
+        ).select_related(
+            'one',
+            'foreign',
+        ).prefetch_related(
+            'many',
+        ).get()
+
+        a_rel_dict_django = serialize_model_a_rel(instance_a_rel_django)
+        a_rel_dict_tortoise = serialize_model_a_rel(instance_a_rel_tortoise)
+
+        assert a_rel_dict_django == a_rel_dict_tortoise
+
+
+@pytest.mark.parametrize(
+    'use_tz', [False, True]
+)
+@pytest.mark.django_db
+@pytest.mark.asyncio
+async def test_model_b_creat_through_tortoise(generate_a_as_dict, use_tz):
+    with override_settings(USE_TZ=use_tz):
+        instance_a_rel = await ModelARel.abjects.create(
+            one=(await ModelA.abjects.create(**generate_a_as_dict())),
+            foreign=(await ModelA.abjects.create(**generate_a_as_dict()))
+        )
+        await instance_a_rel.many.add(await ModelA.abjects.create(**generate_a_as_dict()))
+
+        instance_a_rel_django = ModelARel.objects.get(id=instance_a_rel.id)
+        instance_a_rel_tortoise = await ModelARel.abjects.filter(
+            id=instance_a_rel.id
+        ).select_related(
+            'one',
+            'foreign',
+        ).prefetch_related(
+            'many',
+        ).get()
+
+        a_rel_dict_django = serialize_model_a_rel(instance_a_rel_django)
+        a_rel_dict_tortoise = serialize_model_a_rel(instance_a_rel_tortoise)
+
+        assert a_rel_dict_django == a_rel_dict_tortoise

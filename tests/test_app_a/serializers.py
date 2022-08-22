@@ -1,7 +1,3 @@
-from django.utils import timezone
-from django.utils.timezone import get_default_timezone
-
-
 def serialize_model_a(instance):
     return {
         'id': instance.id,
@@ -25,4 +21,16 @@ def serialize_model_a(instance):
         'time': instance.time,
         'url': instance.url,
         'uuid': instance.uuid,
+    }
+
+
+def serialize_model_a_rel(instance):
+    return {
+        'id': instance.id,
+        'one': serialize_model_a(instance.one),
+        'foreign': serialize_model_a(instance.foreign),
+        'many': [
+            serialize_model_a(instance_a)
+            for instance_a in (instance.many if hasattr(instance._meta, 'app') else instance.many.all())
+        ],
     }

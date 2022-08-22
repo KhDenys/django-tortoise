@@ -235,32 +235,23 @@ def __get_one_to_one_field(django_field):
 
 
 def __get_many_to_many_field(django_field):
-    to = django_field.related_model
-    if isinstance(to, str):
-        if '.' in to:
-            to = to.split('.')[-1]
+    forward = django_field.related_model
+    if isinstance(forward, str):
+        if '.' in forward:
+            forward = forward.split('.')[-1]
     else:
-        to = to.__name__
+        forward = forward.__name__
 
-    model_name = f'django_tortoise.{to}Tortoise'
+    model_name = f'django_tortoise.{forward}Tortoise'
     related_name = django_field.remote_field.related_name
-    on_delete = ON_DELETE[django_field.remote_field.on_delete]
-    null = on_delete is fields.SET_NULL
 
-    through = django_field.through
-    if isinstance(through, str):
-        if '.' in through:
-            through = through.split('.')[-1]
-    else:
-        through = through.__name__
+    through = django_field.remote_field.through._meta.db_table
 
-    through = f'{through}Tortoise'
-
-    forward_key = None
-    backward_key = None
-    through_fields = django_field.through_fields
+    through_fields = django_field.remote_field.through_fields
     if through_fields:
         backward_key, forward_key = through_fields
+    else:
+        backward_key, forward_key = f'{django_field.model._meta.object_name.lower()}_id', f'{forward.lower()}_id'
 
     return fields.ManyToManyField(
         model_name=model_name,
@@ -268,8 +259,6 @@ def __get_many_to_many_field(django_field):
         through=through,
         forward_key=forward_key,
         backward_key=backward_key,
-        on_delete=on_delete,
-        null=null,
     )
 
 

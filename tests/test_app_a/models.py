@@ -29,4 +29,4 @@ class ModelARel(models.Model):
     id = models.BigAutoField(primary_key=True)
     one = models.OneToOneField('ModelA', related_name='one', on_delete=models.CASCADE)
     foreign = models.ForeignKey('ModelA', related_name='foreigns', on_delete=models.SET_NULL, null=True)
-    many = models.ForeignKey('ModelA', related_name='many', on_delete=models.SET_NULL, null=True)
+    many = models.ManyToManyField('ModelA', related_name='many')

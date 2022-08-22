@@ -58,7 +58,9 @@ def get_tortoise_fields(django_model):
         field_type = type(django_field)
         try:
             tortoise_field = DJANGO_TORTOISE_FIELD_MAPPING[field_type](django_field)
-        except KeyError:
+        except KeyError as e:
+            print(e)
+            # skip reverse related fields
             continue
 
         tortoise_fields[django_field.name] = tortoise_field
