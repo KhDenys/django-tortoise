@@ -58,8 +58,7 @@ def get_tortoise_fields(django_model):
         field_type = type(django_field)
         try:
             tortoise_field = DJANGO_TORTOISE_FIELD_MAPPING[field_type](django_field)
-        except KeyError as e:
-            print(e)
+        except KeyError:
             # skip reverse related fields
             continue
 
@@ -151,7 +150,7 @@ def register_tortoise_shutdown():
             pass
 
 
-def __shutdown_handler(signum, frame):
+def __shutdown_handler(signum, _):
     run_async(Tortoise.close_connections())
     sys.exit(signum)
 

@@ -38,21 +38,13 @@ integration of tortoise orm in django
 
 
 * Free software: GNU General Public License v3
-* Documentation: https://django-tortoise.readthedocs.io.
+..
+    * Documentation: https://django-tortoise.readthedocs.io.
 
 Features
 --------
 
 * Pending :D
-
-Demo
-----
-
-To run an example project for this django reusable app, click the button below and start a demo serwer on Heroku
-
-.. image:: https://www.herokucdn.com/deploy/button.png
-    :target: https://heroku.com/deploy
-    :alt: Deploy Django Opt-out example project to Heroku
 
 
 Quickstart
@@ -100,13 +92,3 @@ Does the code actually work?
 
 We recommend using pipenv_ but a legacy approach to creating virtualenv and installing requirements should also work.
 Please install `requirements/development.txt` to setup virtual env for testing and development.
-
-
-Credits
--------
-
-This package was created with Cookiecutter_ and the `wooyek/cookiecutter-django-app`_ project template.
-
-.. _Cookiecutter: https://github.com/audreyr/cookiecutter
-.. _`wooyek/cookiecutter-django-app`: https://github.com/wooyek/cookiecutter-django-app
-.. _`pipenv`: https://docs.pipenv.org/install#fancy-installation-of-pipenv
