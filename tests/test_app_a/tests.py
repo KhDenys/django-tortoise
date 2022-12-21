@@ -1,3 +1,4 @@
+import django
 import pytest
 
 from django.contrib.admin.models import LogEntry
@@ -27,7 +28,12 @@ def test_check_if_model_is_monkey_patched(model):
 
 
 @pytest.mark.parametrize(
-    'use_tz', [False, True]
+    'use_tz', [
+        True,
+        pytest.param(
+            False, marks=pytest.mark.skipif(django.VERSION[:2] >= (4, 1), reason='django>=4.1')
+        )
+    ]
 )
 @pytest.mark.django_db
 @pytest.mark.asyncio
@@ -39,7 +45,12 @@ async def test_user_count(use_tz):
 
 
 @pytest.mark.parametrize(
-    'use_tz', [False, True]
+    'use_tz', [
+        True,
+        pytest.param(
+            False, marks=pytest.mark.skipif(django.VERSION[:2] >= (4, 1), reason='django>=4.1')
+        )
+    ]
 )
 @pytest.mark.django_db
 @pytest.mark.asyncio
@@ -58,7 +69,12 @@ async def test_model_a_creat_through_django(generate_a_as_dict, use_tz):
 
 
 @pytest.mark.parametrize(
-    'use_tz', [False, True]
+    'use_tz', [
+        True,
+        pytest.param(
+            False, marks=pytest.mark.skipif(django.VERSION[:2] >= (4, 1), reason='django>=4.1')
+        )
+    ]
 )
 @pytest.mark.django_db
 @pytest.mark.asyncio
@@ -77,7 +93,12 @@ async def test_model_a_creat_through_tortoise(generate_a_as_dict, use_tz):
 
 
 @pytest.mark.parametrize(
-    'use_tz', [False, True]
+    'use_tz', [
+        True,
+        pytest.param(
+            False, marks=pytest.mark.skipif(django.VERSION[:2] >= (4, 1), reason='django>=4.1')
+        )
+    ]
 )
 @pytest.mark.django_db
 @pytest.mark.asyncio
@@ -106,7 +127,12 @@ async def test_model_b_creat_through_django(generate_a_as_dict, use_tz):
 
 
 @pytest.mark.parametrize(
-    'use_tz', [False, True]
+    'use_tz', [
+        True,
+        pytest.param(
+            False, marks=pytest.mark.skipif(django.VERSION[:2] >= (4, 1), reason='django>=4.1')
+        )
+    ]
 )
 @pytest.mark.django_db
 @pytest.mark.asyncio

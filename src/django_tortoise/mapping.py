@@ -4,6 +4,7 @@ from tortoise import fields
 from .fields import (
     DateField,
     DateTimeField,
+    TimeField,
     DurationField,
     EmailField,
     GenericIPAddressField,
@@ -181,7 +182,7 @@ def __get_text_field(django_field):
 def __get_time_field(django_field):
     base_kwargs = __get_base_field_kwargs(django_field)
     auto_now, auto_now_add = django_field.auto_now, django_field.auto_now_add
-    return fields.TimeField(**base_kwargs, auto_now=auto_now, auto_now_add=auto_now_add)
+    return TimeField(**base_kwargs, auto_now=auto_now, auto_now_add=auto_now_add)
 
 
 def __get_url_field(django_field):
@@ -264,7 +265,6 @@ def __get_many_to_many_field(django_field):
 
 # # reverse relationship fields
 # def __get_many_to_one_rel(django_field):
-
 
 
 DJANGO_TORTOISE_FIELD_MAPPING = {

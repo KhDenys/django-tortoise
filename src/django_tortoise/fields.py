@@ -1,10 +1,11 @@
 import datetime
 import warnings
 
+import django
 from django.conf import settings
 from django.core.validators import validate_email, validate_slug, validate_unicode_slug, URLValidator
 from django.utils import timezone
-from django.utils.dateparse import parse_date, parse_datetime, parse_duration
+from django.utils.dateparse import parse_date, parse_datetime, parse_time, parse_duration
 from django.utils.duration import duration_microseconds
 from django.utils.ipv6 import clean_ipv6_address
 from tortoise.fields.base import Field
@@ -89,7 +90,11 @@ class DateTimeField(TortoiseDateTimeField):
             parsed = parse_datetime(value)
             if parsed is not None:
                 if settings.USE_TZ and timezone.is_naive(parsed):
-                    parsed = timezone.make_aware(parsed, timezone.utc)
+                    if django.VERSION[:2] >= (4, 1):
+                        default_timezone = timezone.get_default_timezone()
+                    else:
+                        default_timezone = timezone.utc
+                    parsed = timezone.make_aware(parsed, default_timezone)
                 self.validate(parsed)
                 return parsed
         except ValueError as e:
@@ -127,6 +132,62 @@ class DateTimeField(TortoiseDateTimeField):
 
         self.validate(value)
         return value
+
+
+class TimeField(Field[datetime.time], datetime.time):
+    skip_to_python_if_native = True
+    SQL_TYPE = "TIME"
+
+    class _db_oracle:
+        SQL_TYPE = "TIMESTAMP"
+
+    class _db_mysql:
+        SQL_TYPE = "TIME(6)"
+
+    def __init__(self, auto_now, auto_now_add, **kwargs):
+        # Do not check combination of auto_now, auto_now_add, and default
+        # since it has been done by Django
+        super().__init__(**kwargs)
+        self.auto_now = auto_now
+        self.auto_now_add = auto_now | auto_now_add
+
+    def to_python_value(self, value):
+        if value is None:
+            return None
+        if isinstance(value, datetime.time):
+            self.validate(value)
+            return value
+        if isinstance(value, datetime.datetime):
+            # Not usually a good idea to pass in a datetime here (it loses
+            # information), but this can be a side-effect of interacting with a
+            # database backend (e.g. Oracle), so we'll be accommodating.
+            value = value.time()
+            self.validate(value)
+            return value.time()
+
+        try:
+            parsed = parse_time(value)
+            if parsed is not None:
+                self.validate(parsed)
+                return parsed
+        except ValueError:
+            raise ValueError(f'Bad value: {value}') from e
+
+        raise ValueError(f'Bad value: {value}')
+
+    def to_db_value(self, value, instance):
+
+        # Only do this if it is a Model instance, not class. Test for guaranteed instance var
+        if hasattr(instance, "_saved_in_db") and (
+            self.auto_now
+            or (self.auto_now_add and getattr(instance, self.model_field_name) is None)
+        ):
+            value = datetime.datetime.now().time()
+            self.validate(value)
+            setattr(instance, self.model_field_name, value)
+            return value.isoformat()
+        self.validate(value)
+        return value.isoformat()
 
 
 class DurationField(Field, datetime.timedelta):

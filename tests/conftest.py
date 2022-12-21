@@ -3,6 +3,7 @@ import importlib.util
 import json
 import sys
 
+import django
 import pytest
 
 from pathlib import Path
@@ -40,6 +41,14 @@ def django_db_setup():
         'ENGINE': 'django.db.backends.sqlite3',
         'NAME': Path(__file__).resolve().parent / 'db.sqlite3',
     }
+    if django.VERSION[:2] >= (4, 1):
+        settings.DATABASES['default'].update({
+            'TIME_ZONE': 'Europe/Kiev',
+            'CONN_HEALTH_CHECKS': False,
+            'CONN_MAX_AGE': 0,
+            'OPTIONS': {},
+            'AUTOCOMMIT': True
+        })
 
 
 @pytest.fixture(scope='session')
