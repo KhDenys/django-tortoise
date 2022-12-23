@@ -134,7 +134,7 @@ class DateTimeField(TortoiseDateTimeField):
         return value
 
 
-class TimeField(Field[datetime.time], datetime.time):
+class TimeField(Field, datetime.time):
     skip_to_python_if_native = True
     SQL_TYPE = "TIME"
 

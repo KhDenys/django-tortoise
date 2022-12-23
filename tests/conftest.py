@@ -1,3 +1,4 @@
+import asyncio
 import datetime
 import importlib.util
 import json
@@ -14,6 +15,8 @@ from django.conf import settings
 from django.core.handlers.asgi import ASGIHandler
 from tortoise import Tortoise
 
+from django_tortoise.models import tortoise_setup, __init
+
 django_tortoise_name = 'django_tortoise'
 django_tortoise_path = Path(__file__).resolve().parent.parent / 'src' / 'django_tortoise' / '__init__.py'
 
@@ -22,17 +25,23 @@ module = importlib.util.module_from_spec(spec)
 sys.modules[django_tortoise_name] = module
 spec.loader.exec_module(module)
 
-from django_tortoise import get_boosted_asgi_application, run_async
 
+@pytest.fixture(scope="session")
+def event_loop():
 
-def pytest_sessionstart(session):
-    # monkey patch django orm
-    get_boosted_asgi_application(ASGIHandler())
+    loop = asyncio.get_event_loop()
 
+    ASGIHandler()
 
-def pytest_sessionfinish(session, exitstatus):
-    # manually close all connections to prevent tests hangs
-    run_async(Tortoise.close_connections())
+    from django.apps import apps
+    tortoise_setup(apps)
+
+    loop.run_until_complete(__init())
+
+    yield loop
+
+    loop.run_until_complete(Tortoise.close_connections())
+    loop.close()
 
 
 @pytest.fixture(scope='session')
@@ -63,7 +72,7 @@ def generate_a_as_dict():
         'duration': datetime.timedelta(minutes=fake.pyint(max_value=2147483647)),
         'float': fake.pyfloat(),
         'ip': fake.ipv4(),
-        'integer': fake.pyint(min_value=-9223372036854775808, max_value=9223372036854775807),
+        'integer': fake.pyint(min_value=-2147483648, max_value=2147483647),
         'small_int': fake.pyint(min_value=-32768, max_value=32767),
         'json': json.loads(
             fake.json(
