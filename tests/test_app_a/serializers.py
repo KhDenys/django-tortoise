@@ -1,7 +1,7 @@
 def serialize_model_a(instance):
     return {
         'id': instance.id,
-        'binary': instance.binary,
+        'binary': bytes(instance.binary),
         'boolean': instance.boolean,
         'char': instance.char,
         'date': instance.date,

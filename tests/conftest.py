@@ -26,7 +26,7 @@ sys.modules[django_tortoise_name] = module
 spec.loader.exec_module(module)
 
 
-@pytest.fixture(scope="session")
+@pytest.fixture(scope='session')
 def event_loop():
 
     loop = asyncio.get_event_loop()
@@ -46,10 +46,6 @@ def event_loop():
 
 @pytest.fixture(scope='session')
 def django_db_setup():
-    settings.DATABASES['default'] = {
-        'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': Path(__file__).resolve().parent / 'db.sqlite3',
-    }
     if django.VERSION[:2] >= (4, 1):
         settings.DATABASES['default'].update({
             'TIME_ZONE': 'Europe/Kiev',

@@ -6,7 +6,7 @@ from django.conf import settings
 from django.core.validators import validate_email, validate_slug, validate_unicode_slug, URLValidator
 from django.utils import timezone
 from django.utils.dateparse import parse_date, parse_datetime, parse_time, parse_duration
-from django.utils.duration import duration_microseconds
+from django.utils.duration import duration_microseconds, duration_string
 from django.utils.ipv6 import clean_ipv6_address
 from tortoise.fields.base import Field
 from tortoise.fields.data import (
@@ -15,6 +15,14 @@ from tortoise.fields.data import (
     DatetimeField as TortoiseDateTimeField,
 )
 from tortoise.validators import validate_ipv46_address, MinValueValidator, MaxValueValidator
+
+
+class BinaryField(Field, memoryview):
+    indexable = False
+    SQL_TYPE = "BLOB"
+
+    class _db_postgres:
+        SQL_TYPE = "BYTEA"
 
 
 class DateField(TortoiseDateField):
@@ -65,6 +73,21 @@ class DateTimeField(TortoiseDateTimeField):
         if value is None:
             return value
         if isinstance(value, datetime.datetime):
+            if settings.USE_TZ:
+                from .models import DB_BACKEND
+                if DB_BACKEND == 'sqlite3':
+                    pass
+                elif DB_BACKEND == 'postgresql':
+
+                    if django.VERSION[:2] >= (4, 1):
+                        default_timezone = timezone.get_default_timezone()
+                    else:
+                        default_timezone = timezone.utc
+
+                    value = value.astimezone(default_timezone)
+            else:
+                if timezone.is_aware(value):
+                    value = timezone.make_naive(value)
             self.validate(value)
             return value
         if isinstance(value, datetime.date):
@@ -183,11 +206,17 @@ class TimeField(Field, datetime.time):
             or (self.auto_now_add and getattr(instance, self.model_field_name) is None)
         ):
             value = datetime.datetime.now().time()
-            self.validate(value)
             setattr(instance, self.model_field_name, value)
-            return value.isoformat()
+
         self.validate(value)
-        return value.isoformat()
+
+        from .models import DB_BACKEND
+        if DB_BACKEND == 'postgresql':
+            return value
+        elif DB_BACKEND == 'sqlite3':
+            return value.isoformat()
+
+        raise NotImplementedError('Given database backend is not supported')
 
 
 class DurationField(Field, datetime.timedelta):
@@ -216,7 +245,14 @@ class DurationField(Field, datetime.timedelta):
 
         if value is None:
             return None
-        return duration_microseconds(value)
+
+        from .models import DB_BACKEND
+        if DB_BACKEND == 'postgresql':
+            return value
+        elif DB_BACKEND == 'sqlite3':
+            return duration_microseconds(value)
+
+        raise NotImplementedError('Given database backend is not supported')
 
 
 class EmailField(CharField):

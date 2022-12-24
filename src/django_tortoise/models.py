@@ -10,6 +10,7 @@ from .mapping import DJANGO_TORTOISE_FIELD_MAPPING
 
 SYMBIOTIC_MODELS = {}
 __models__ = list()
+DB_BACKEND = None
 
 
 class _SymbioticModel:
@@ -113,6 +114,8 @@ async def __init():
 
 
 def __get_db_conf():
+    global DB_BACKEND
+
     # support default db only
     django_db_conf = settings.DATABASES['default']
     engine = django_db_conf['ENGINE']
@@ -129,11 +132,15 @@ def __get_db_conf():
             }
         }
 
+        DB_BACKEND = 'postgresql'
+
     elif engine == 'django.db.backends.sqlite3':
         tortoise_db_conf = {
             "engine": "tortoise.backends.sqlite",
             "credentials": {"file_path": django_db_conf['NAME']},
         }
+
+        DB_BACKEND = 'sqlite3'
 
     else:
         raise NotImplementedError('Given database backend is not supported')

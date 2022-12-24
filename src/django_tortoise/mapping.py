@@ -2,6 +2,7 @@ from django.db import models
 from tortoise import fields
 
 from .fields import (
+    BinaryField,
     DateField,
     DateTimeField,
     TimeField,
@@ -60,7 +61,7 @@ def __get_big_integer_field(django_field):
 
 def __get_binary_field(django_field):
     base_kwargs = __get_base_field_kwargs(django_field)
-    return fields.BinaryField(**base_kwargs)
+    return BinaryField(**base_kwargs)
 
 
 def __get_boolean_field(django_field):
