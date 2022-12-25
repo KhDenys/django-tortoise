@@ -3,7 +3,7 @@ django-tortoise
 ===============
 
 This python package is the simplest way to use Tortoise ORM in an existing (maybe not)
-Django project that uses sqlite or PostgreSQL databases.
+Django project that uses sqlite or PostgreSQL databases
 
 
 .. image:: https://img.shields.io/pypi/v/django-tortoise.svg
@@ -37,8 +37,6 @@ Django project that uses sqlite or PostgreSQL databases.
 .. image:: https://img.shields.io/badge/Say%20Thanks-!-1EAEDB.svg
         :target: https://saythanks.io/to/KhDenys
 
-
-* Free software: GNU General Public License v3
 ..
     * Documentation: https://django-tortoise.readthedocs.io.
 
