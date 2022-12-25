@@ -33,7 +33,7 @@ Modify the asgi.py in the main Django project folder:
     import os
 
     from django.core.asgi import get_asgi_application
-    from django_tortoise.asgi import get_boosted_asgi_application  # first line
+    from django_tortoise import get_boosted_asgi_application  # first line
 
     os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'proj.settings')
 
